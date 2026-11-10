@@ -2,7 +2,7 @@ version = "1.0"
 
 [metadata]
 author_name = "Kunal Aher"
-author_email = "unknown"
+author_email = "251929552+kunalaher168-coder@users.noreply.github.com"
 difficulty = "medium"
 category = "debugging"
 tags = [ "debugging", "python", "swe-bench-style", "root-cause", "regression",]

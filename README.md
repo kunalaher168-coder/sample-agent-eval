@@ -1,6 +1,8 @@
 # Coding Agent Evaluation: SWE-bench-Style Task and Trace Review
 
-A SWE-bench-style debugging task packaged in the Harbor task layout (the layout Terminal-Bench 2.0 tasks use), graded with FAIL_TO_PASS and PASS_TO_PASS tests and a 0/1 reward, plus two recorded agent runs scored against a weighted rubric. Every result in this repository can be reproduced with the commands below. All content and formats are original to this repository: nothing is taken from a client prompt, rubric, template, codebase, or trace.
+[![Task and run checks](https://github.com/kunalaher168-coder/sample-agent-eval/actions/workflows/tests.yml/badge.svg)](https://github.com/kunalaher168-coder/sample-agent-eval/actions/workflows/tests.yml)
+
+A SWE-bench-style debugging task packaged in the Harbor task layout (the layout Terminal-Bench 2.0 tasks use), graded with FAIL_TO_PASS and PASS_TO_PASS tests and a 0/1 reward, plus two recorded agent runs scored against a weighted rubric. Every result in this repository can be reproduced with the commands below. The task, code, tests, traces, rubric and review format were all written for this repository.
 
 ## Task under review
 
@@ -61,10 +63,11 @@ The visible tests pass in every row, which is how the defect reached users.
 
 Use Python 3.11 or later, git, and pytest.
 
-```powershell
+```bash
 pip install pytest==8.4.1
 python scripts/check_repo.py
 python scripts/verify.py
+python scripts/verify.py --check
 python scripts/verify.py --run runs/agent-b
 python scripts/verify.py --patch my_fix.diff
 ```

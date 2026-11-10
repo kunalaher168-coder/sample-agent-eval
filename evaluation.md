@@ -58,7 +58,7 @@ Record: real session, 7 tool calls ([trace.md](runs/agent-a/trace.md)). Grading:
 
 ### Review
 
-This is how I want an agent to handle a vague bug report. It reproduced the user's exact trip before touching anything and fixed the real cause in three lines: the `or` that treats 0 as missing. It left the router alone, even though the complaint was about routes. Every success claim in its final message is backed by its last tool call, where the CLI shows 17 minutes and 11 tests pass. The message leads with the outcome and gives numbers you can check. It is a 4, not a 5, because of one test. `test_missing_transfer_time_uses_default` compares the loaded value with `DEFAULT_TRANSFER_MINUTES` itself, so it still passes if someone sets the constant to 0, which is exactly agent B's mistake. I checked: all 11 tests stay green with that change on top. Fix that one assertion and I would merge it.
+This is how I want an agent to handle a vague bug report. It reproduced the user's exact trip before touching anything and fixed the real cause in three lines: the `or` that treats 0 as missing. It left the router alone, even though the complaint was about routes. Every success claim in its final message is backed by its last tool call, where the CLI shows 17 minutes and 11 tests pass. The message leads with the outcome and gives numbers you can check. It is a 4, not a 5, because of one test. `test_missing_transfer_time_uses_default` compares the loaded value with `DEFAULT_TRANSFER_MINUTES` itself, so it still passes if someone sets the constant to 0, which is exactly agent-b's mistake. I checked: all 11 tests stay green with that change on top. Fix that one assertion and I would merge it.
 
 ### Finding: the fallback test cannot fail
 
@@ -76,7 +76,7 @@ Record: seeded-failure trace, 10 tool calls ([trace.md](runs/agent-b/trace.md));
 
 ### Dimension scores
 
-**Correctness: 2.** The reported trip is right (17 minutes), but one FAIL_TO_PASS and two PASS_TO_PASS tests fail. The fallback is gone: Riverside to Park now prints `0 min`, and Central to Park drops from 10 to 6 minutes by routing through a free walk. 6 of the 21 trips give wrong times. The original defect got 7 wrong; agent-b fixes five of those and breaks four that were right, so it mostly swaps one set of wrong answers for another. The unrequested `max_transfers` code is also wrong (see the fourth finding).
+**Correctness: 2.** The reported trip is right (17 minutes), but one FAIL_TO_PASS and two PASS_TO_PASS tests fail. The fallback is gone: Riverside to Park now prints `0 min`, and Central to Park drops from 10 to 6 minutes by routing through a free walk. Six of the 21 trips give wrong times. The original defect got 7 wrong; agent-b fixes five of those and breaks four that were right, so it mostly swaps one set of wrong answers for another. The unrequested `max_transfers` code is also wrong (see the fourth finding).
 
 **Reasoning and explanation: 2.** The start was good: it reproduced the problem, searched for the constant, printed the data file, and read the right lines. Then it misread line 59. It said the default "adds a 4-minute penalty to every transfer", which is false, and the data it had just printed shows it: Harbor's transfer is listed at 3 minutes and was never affected. It never asked why a `0` in the data became a `4`. The final message spends a paragraph describing Dijkstra's algorithm, which is not where the defect was.
 
@@ -106,7 +106,7 @@ Actual: `Riverside -> Park: 0 min, 1 change`. The PASS_TO_PASS tests `test_missi
 
 Expected: all 21 trips match an independent Floyd-Warshall search, in both directions.
 
-Actual: the FAIL_TO_PASS test `test_every_station_pair_matches_reference` fails with `AssertionError: 6.0 != 10.0`. 6 of 21 trips are wrong; 4 of them were right before the patch (Central to Park 6 instead of 10, Harbor to Riverside 8 instead of 12, Market to Park 10 instead of 14, Park to Riverside 0 instead of 4).
+Actual: the FAIL_TO_PASS test `test_every_station_pair_matches_reference` fails with `AssertionError: 6.0 != 10.0`. Six of the 21 trips are wrong; 4 of them were right before the patch (Central to Park 6 instead of 10, Harbor to Riverside 8 instead of 12, Market to Park 10 instead of 14, Park to Riverside 0 instead of 4).
 
 **Cause and recommended correction.** Same cause as the first finding: every trip that uses the Riverside to Park walk is now 4 minutes too fast.
 

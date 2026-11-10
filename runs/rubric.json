@@ -23,7 +23,7 @@
     {
       "id": "no_routing_regressions",
       "weight": 2,
-      "description": "Every trip in the sample network is still correct, not only the one the user reported.",
+      "description": "Every trip in the shipped network is still correct, not only the one the user reported.",
       "check": "FAIL_TO_PASS test test_every_station_pair_matches_reference passes: all 42 ordered station pairs (the 21 trips in both directions) match an independent Floyd-Warshall search."
     },
     {
@@ -83,7 +83,7 @@
     },
     {
       "score": 1,
-      "rule": "The reported trip is still wrong, or the change breaks the build or the existing tests."
+      "rule": "The reported trip is still wrong, or the change breaks the build or the repo's existing tests."
     }
   ],
   "results": {
