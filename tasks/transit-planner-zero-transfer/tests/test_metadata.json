@@ -1,0 +1,31 @@
+{
+    "test_framework": "pytest",
+    "test_command": "bash tests/test.sh (python -P -m pytest -rA -p no:cacheprovider --noconftest -o addopts= --import-mode=append: tests/test_router.py ids in the repo, tests/test_transfers.py ids from a copy outside the repo)",
+    "test_files": [
+        "tests/test_router.py",
+        "tests/test_transfers.py"
+    ],
+    "num_test_files": 2,
+    "language": "python",
+    "FAIL_TO_PASS": [
+        "tests.test_transfers.ZeroMinuteTransfers::test_float_zero_transfer_costs_nothing",
+        "tests.test_transfers.ZeroMinuteTransfers::test_zero_minute_change_is_still_reported_as_a_change",
+        "tests.test_transfers.ZeroMinuteTransfers::test_zero_minute_change_wins_route_choice",
+        "tests.test_transfers.ZeroMinuteTransfers::test_zero_minute_transfer_costs_nothing",
+        "tests.test_transfers.WholeNetwork::test_every_station_pair_matches_reference"
+    ],
+    "PASS_TO_PASS": [
+        "tests.test_router.SampleNetworkTests::test_loads_all_stops",
+        "tests.test_router.SampleNetworkTests::test_same_station_is_an_empty_route",
+        "tests.test_router.SampleNetworkTests::test_single_line_trip",
+        "tests.test_router.SampleNetworkTests::test_station_names_are_case_insensitive",
+        "tests.test_router.RouterTests::test_negative_minutes_rejected",
+        "tests.test_router.RouterTests::test_route_with_timed_transfer",
+        "tests.test_router.RouterTests::test_unknown_station",
+        "tests.test_router.RouterTests::test_unreachable_station",
+        "tests.test_transfers.MissingTransferTimes::test_missing_transfer_time_uses_documented_default",
+        "tests.test_transfers.MissingTransferTimes::test_negative_times_still_rejected",
+        "tests.test_transfers.MissingTransferTimes::test_null_transfer_time_uses_documented_default"
+    ],
+    "base_commit": "environment/repo as shipped (committed as 'start' by environment/Dockerfile)"
+}

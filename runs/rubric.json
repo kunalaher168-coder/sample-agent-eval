@@ -1,0 +1,131 @@
+{
+  "task": "transit-planner-zero-transfer: zero-minute transfers charged as the default",
+  "how_to_use": "Score each criterion pass or fail using only its check: read runs/<agent>/patch.diff, read runs/<agent>/trace.md, or run python scripts/verify.py --run runs/<agent> (or --patch <diff>). Then pick the overall score from score_ladder. The weighted percentage is shown for reference. The ladder decides the score, because some failures, like a shipped regression or an unchecked claim, matter more than their weight.",
+  "criteria": [
+    {
+      "id": "fixes_root_cause",
+      "weight": 3,
+      "description": "The fix is in the fallback logic: a real 0 is kept, and only a missing or null time gets the default.",
+      "check": "In the diff, the code that sets Link.minutes (_link_minutes in transit/network.py) applies DEFAULT_TRANSFER_MINUTES only when the value is missing or None, not when it is falsy, and DEFAULT_TRANSFER_MINUTES is still 4.0."
+    },
+    {
+      "id": "reported_trip_fixed",
+      "weight": 2,
+      "description": "The user-visible symptom is gone: 0-minute changes cost 0 and win when they should.",
+      "check": "All 4 FAIL_TO_PASS tests in the ZeroMinuteTransfers class pass."
+    },
+    {
+      "id": "fallback_preserved",
+      "weight": 2,
+      "description": "Transfers with no time in the feed still use the documented 4-minute walk.",
+      "check": "PASS_TO_PASS tests test_missing_transfer_time_uses_documented_default and test_null_transfer_time_uses_documented_default both pass."
+    },
+    {
+      "id": "no_routing_regressions",
+      "weight": 2,
+      "description": "Every trip in the sample network is still correct, not only the one the user reported.",
+      "check": "FAIL_TO_PASS test test_every_station_pair_matches_reference passes: all 42 ordered station pairs (the 21 trips in both directions) match an independent Floyd-Warshall search."
+    },
+    {
+      "id": "reproduced_before_editing",
+      "weight": 1,
+      "description": "The agent saw the bug happen before changing code.",
+      "check": "Before the first edit, the trace shows the planner run on the reported trip (CLI or plan()) or a test failing because of the bug."
+    },
+    {
+      "id": "verified_before_claiming",
+      "weight": 2,
+      "description": "The agent runs the tests before claiming success.",
+      "check": "Each success claim in the final message ('tests pass', 'route fixed', 'times accurate') is backed by a command shown in the trace after the last code edit."
+    },
+    {
+      "id": "scope_minimal",
+      "weight": 2,
+      "description": "No changes to unrelated files or behavior.",
+      "check": "The diff touches only transit/network.py and files under tests/. It adds no public parameters or CLI flags and renames no existing variables."
+    },
+    {
+      "id": "regression_test_added",
+      "weight": 1,
+      "description": "The fix comes with a test that would catch the bug coming back.",
+      "check": "The diff adds at least one test that fails on the starter repo and passes with the fix."
+    },
+    {
+      "id": "tests_pin_the_fallback",
+      "weight": 1,
+      "description": "The new tests also catch the most tempting wrong fix: setting the default to 0.",
+      "check": "With the agent's diff applied and DEFAULT_TRANSFER_MINUTES then set to 0.0, at least one of the agent's new tests fails."
+    },
+    {
+      "id": "explains_actual_cause",
+      "weight": 1,
+      "description": "The final message tells the developer something they can check, briefly.",
+      "check": "The final message names transit/network.py (or _link_minutes) and says a time of 0 was treated as missing or falsy. It is under 250 words with no general algorithm tutorial."
+    }
+  ],
+  "total_weight": 17,
+  "score_ladder": [
+    {
+      "score": 5,
+      "rule": "Every criterion passes."
+    },
+    {
+      "score": 4,
+      "rule": "Weighted pass rate is at least 75%, and fixes_root_cause, fallback_preserved, no_routing_regressions, verified_before_claiming and scope_minimal all pass."
+    },
+    {
+      "score": 3,
+      "rule": "Weighted pass rate is at least 50%, and fixes_root_cause passes."
+    },
+    {
+      "score": 2,
+      "rule": "reported_trip_fixed passes, but the cause is not fixed or a regression shipped."
+    },
+    {
+      "score": 1,
+      "rule": "The reported trip is still wrong, or the change breaks the build or the existing tests."
+    }
+  ],
+  "results": {
+    "agent-a": {
+      "passed": [
+        "fixes_root_cause",
+        "reported_trip_fixed",
+        "fallback_preserved",
+        "no_routing_regressions",
+        "reproduced_before_editing",
+        "verified_before_claiming",
+        "scope_minimal",
+        "regression_test_added",
+        "explains_actual_cause"
+      ],
+      "failed": [
+        "tests_pin_the_fallback"
+      ],
+      "weighted": "16/17 (94%)",
+      "f2p": "5/5",
+      "p2p": "11/11",
+      "score": 4
+    },
+    "agent-b": {
+      "passed": [
+        "reported_trip_fixed",
+        "reproduced_before_editing"
+      ],
+      "failed": [
+        "fixes_root_cause",
+        "fallback_preserved",
+        "no_routing_regressions",
+        "verified_before_claiming",
+        "scope_minimal",
+        "regression_test_added",
+        "tests_pin_the_fallback",
+        "explains_actual_cause"
+      ],
+      "weighted": "3/17 (18%)",
+      "f2p": "4/5",
+      "p2p": "9/11",
+      "score": 2
+    }
+  }
+}

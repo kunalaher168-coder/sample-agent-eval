@@ -1,0 +1,82 @@
+{
+  "task": "transit-planner-zero-transfer",
+  "target": "runs/agent-a/patch.diff",
+  "grader": "tasks/transit-planner-zero-transfer/tests/test.sh (local mirror: scripts/verify.py)",
+  "reward": 1,
+  "fail_to_pass": {
+    "passed": 5,
+    "total": 5,
+    "tests": [
+      {
+        "id": "tests/test_transfers.py::WholeNetwork::test_every_station_pair_matches_reference",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_transfers.py::ZeroMinuteTransfers::test_float_zero_transfer_costs_nothing",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_transfers.py::ZeroMinuteTransfers::test_zero_minute_change_is_still_reported_as_a_change",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_transfers.py::ZeroMinuteTransfers::test_zero_minute_change_wins_route_choice",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_transfers.py::ZeroMinuteTransfers::test_zero_minute_transfer_costs_nothing",
+        "outcome": "passed"
+      }
+    ]
+  },
+  "pass_to_pass": {
+    "passed": 11,
+    "total": 11,
+    "tests": [
+      {
+        "id": "tests/test_router.py::RouterTests::test_negative_minutes_rejected",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_router.py::RouterTests::test_route_with_timed_transfer",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_router.py::RouterTests::test_unknown_station",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_router.py::RouterTests::test_unreachable_station",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_router.py::SampleNetworkTests::test_loads_all_stops",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_router.py::SampleNetworkTests::test_same_station_is_an_empty_route",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_router.py::SampleNetworkTests::test_single_line_trip",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_router.py::SampleNetworkTests::test_station_names_are_case_insensitive",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_transfers.py::MissingTransferTimes::test_missing_transfer_time_uses_documented_default",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_transfers.py::MissingTransferTimes::test_negative_times_still_rejected",
+        "outcome": "passed"
+      },
+      {
+        "id": "tests/test_transfers.py::MissingTransferTimes::test_null_transfer_time_uses_documented_default",
+        "outcome": "passed"
+      }
+    ]
+  }
+}

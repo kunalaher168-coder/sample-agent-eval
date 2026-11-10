@@ -1,0 +1,50 @@
+diff --git a/tests/test_router.py b/tests/test_router.py
+index ee95085..18078ca 100644
+--- a/tests/test_router.py
++++ b/tests/test_router.py
+@@ -1,7 +1,7 @@
+ import unittest
+ from pathlib import Path
+ 
+-from transit import NoRouteError, UnknownStationError, build_network, load_network, plan
++from transit import DEFAULT_TRANSFER_MINUTES, NoRouteError, UnknownStationError, build_network, load_network, plan
+ 
+ DATA = Path(__file__).resolve().parent.parent / "data" / "network.json"
+ 
+@@ -39,6 +39,20 @@ class SampleNetworkTests(unittest.TestCase):
+         route = plan(self.network, "harbor", "MARKET")
+         self.assertEqual(route.total_minutes, 5)
+ 
++    def test_harbor_to_museum_prefers_red_blue_over_green(self):
++        # Red 9 + free change at Central + Blue 8 = 17, beats Green's 19.
++        route = plan(self.network, "Harbor", "Museum")
++        self.assertEqual(route.total_minutes, 17)
++        self.assertEqual(route.transfers, 1)
++
++    def test_zero_minute_transfer_is_kept(self):
++        route = plan(self.network, "Market", "University")
++        self.assertEqual(route.total_minutes, 8)
++
++    def test_missing_transfer_time_uses_default(self):
++        transfers = [l for l in self.network.links_from("riverside_r") if l.kind == "transfer"]
++        self.assertEqual([l.minutes for l in transfers], [DEFAULT_TRANSFER_MINUTES])
++
+     def test_same_station_is_an_empty_route(self):
+         route = plan(self.network, "Museum", "Museum")
+         self.assertEqual(route.legs, ())
+diff --git a/transit/network.py b/transit/network.py
+index 23721cd..726a678 100644
+--- a/transit/network.py
++++ b/transit/network.py
+@@ -56,7 +56,10 @@ class Network:
+ 
+ def _link_minutes(raw: dict) -> float:
+     if raw.get("kind") == "transfer":
+-        minutes = raw.get("minutes") or DEFAULT_TRANSFER_MINUTES
++        # Only fall back when the time is absent; 0 is a real (same-platform) transfer.
++        minutes = raw.get("minutes")
++        if minutes is None:
++            minutes = DEFAULT_TRANSFER_MINUTES
+     else:
+         minutes = raw["minutes"]
+     minutes = float(minutes)

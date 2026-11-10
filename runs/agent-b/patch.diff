@@ -1,0 +1,107 @@
+diff --git a/transit/cli.py b/transit/cli.py
+index d5b047d..adb1b9b 100644
+--- a/transit/cli.py
++++ b/transit/cli.py
+@@ -47,11 +47,13 @@ def main(argv: list[str] | None = None) -> int:
+     parser.add_argument("origin")
+     parser.add_argument("destination")
+     parser.add_argument("--data", default=str(DEFAULT_DATA), help="network JSON file")
++    parser.add_argument("--max-transfers", type=int, default=None,
++                        help="maximum number of line changes allowed")
+     args = parser.parse_args(argv)
+ 
+     network = load_network(args.data)
+     try:
+-        route = plan(network, args.origin, args.destination)
++        route = plan(network, args.origin, args.destination, max_transfers=args.max_transfers)
+     except UnknownStationError as exc:
+         print(f"error: unknown station {exc.args[0]!r}", file=sys.stderr)
+         return 1
+diff --git a/transit/network.py b/transit/network.py
+index 23721cd..617638e 100644
+--- a/transit/network.py
++++ b/transit/network.py
+@@ -6,9 +6,9 @@ import json
+ from dataclasses import dataclass, field
+ from pathlib import Path
+ 
+-# Feeds often leave out the time for a walk between platforms.
+-# When they do, assume a typical platform-to-platform walk.
+-DEFAULT_TRANSFER_MINUTES = 4.0
++# Transfers between platforms should not add artificial cost to a route.
++# Cross-platform interchanges are effectively instant.
++DEFAULT_TRANSFER_MINUTES = 0.0
+ 
+ 
+ @dataclass(frozen=True)
+diff --git a/transit/router.py b/transit/router.py
+index 577fdc5..171474c 100644
+--- a/transit/router.py
++++ b/transit/router.py
+@@ -34,12 +34,26 @@ class Route:
+         return sum(1 for leg in self.legs if leg.kind == "transfer")
+ 
+ 
+-def plan(network: Network, origin_station: str, destination_station: str) -> Route:
++def plan(
++    network: Network,
++    origin_station: str,
++    destination_station: str,
++    max_transfers: int | None = None,
++) -> Route:
+     """Return the fastest route between two stations.
+ 
+     A station can have several platforms (one per line). The search starts
+     from every platform of the origin and stops at the first platform of
+     the destination that comes off the queue.
++
++    Args:
++        network: The metro network to search.
++        origin_station: Name of the station to start from.
++        destination_station: Name of the station to reach.
++        max_transfers: Optional upper bound on the number of changes.
++
++    Returns:
++        The fastest Route that satisfies the constraints.
+     """
+     starts = network.platforms(origin_station)
+     goals = set(network.platforms(destination_station))
+@@ -50,25 +64,29 @@ def plan(network: Network, origin_station: str, destination_station: str) -> Rou
+     if goals.intersection(starts):
+         return Route(legs=(), total_minutes=0.0)
+ 
+-    best = {stop: 0.0 for stop in starts}
++    best_minutes = {stop: 0.0 for stop in starts}
+     came_from: dict[str, Link] = {}
+-    queue = [(0.0, stop) for stop in starts]
++    # Queue entries: (minutes so far, transfers so far, stop id)
++    queue = [(0.0, 0, stop) for stop in starts]
+     heapq.heapify(queue)
+-    done: set[str] = set()
++    visited: set[str] = set()
+ 
+     while queue:
+-        minutes, stop = heapq.heappop(queue)
+-        if stop in done:
++        minutes, transfers, stop = heapq.heappop(queue)
++        if stop in visited:
+             continue
+         if stop in goals:
+             return Route(legs=_walk_back(came_from, stop), total_minutes=minutes)
+-        done.add(stop)
++        visited.add(stop)
+         for link in network.links_from(stop):
++            next_transfers = transfers + (1 if link.kind == "transfer" else 0)
++            if max_transfers is not None and next_transfers > max_transfers:
++                continue
+             candidate = minutes + link.minutes
+-            if candidate < best.get(link.target, float("inf")):
+-                best[link.target] = candidate
++            if candidate < best_minutes.get(link.target, float("inf")):
++                best_minutes[link.target] = candidate
+                 came_from[link.target] = link
+-                heapq.heappush(queue, (candidate, link.target))
++                heapq.heappush(queue, (candidate, next_transfers, link.target))
+ 
+     raise NoRouteError(f"no route from {origin_station} to {destination_station}")
+ 

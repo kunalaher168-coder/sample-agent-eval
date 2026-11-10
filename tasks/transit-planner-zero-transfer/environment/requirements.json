@@ -1,0 +1,8 @@
+[
+  "Planning Harbor to Museum on the shipped network must return the 17-minute route that rides Red to Central, changes to Blue at Central, and rides Blue to Museum.",
+  "A transfer link whose minutes value is 0 or 0.0 must add 0 minutes to a route and must still count as one change.",
+  "A transfer link with no minutes key, or with minutes set to null, must add the documented default of 4 minutes.",
+  "A negative minutes value on any link must still raise ValueError when the network is built.",
+  "For every ordered pair of stations in data/network.json, plan() must return the fastest total time, equal to an independent all-pairs shortest-path search over the same file, with legs that connect end to end.",
+  "Behavior covered by the existing tests in tests/test_router.py must not change."
+]

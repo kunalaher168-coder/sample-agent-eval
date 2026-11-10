@@ -1,0 +1,28 @@
+{
+  "stops": [
+    {"id": "harbor_r",     "station": "Harbor",     "line": "Red"},
+    {"id": "market_r",     "station": "Market",     "line": "Red"},
+    {"id": "central_r",    "station": "Central",    "line": "Red"},
+    {"id": "riverside_r",  "station": "Riverside",  "line": "Red"},
+    {"id": "central_b",    "station": "Central",    "line": "Blue"},
+    {"id": "university_b", "station": "University", "line": "Blue"},
+    {"id": "museum_b",     "station": "Museum",     "line": "Blue"},
+    {"id": "harbor_g",     "station": "Harbor",     "line": "Green"},
+    {"id": "park_g",       "station": "Park",       "line": "Green"},
+    {"id": "museum_g",     "station": "Museum",     "line": "Green"}
+  ],
+  "links": [
+    {"from": "harbor_r",     "to": "market_r",     "kind": "ride", "minutes": 5},
+    {"from": "market_r",     "to": "central_r",    "kind": "ride", "minutes": 4},
+    {"from": "central_r",    "to": "riverside_r",  "kind": "ride", "minutes": 6},
+    {"from": "central_b",    "to": "university_b", "kind": "ride", "minutes": 4},
+    {"from": "university_b", "to": "museum_b",     "kind": "ride", "minutes": 4},
+    {"from": "harbor_g",     "to": "park_g",       "kind": "ride", "minutes": 8},
+    {"from": "park_g",       "to": "museum_g",     "kind": "ride", "minutes": 11},
+
+    {"from": "central_r",    "to": "central_b",    "kind": "transfer", "minutes": 0},
+    {"from": "harbor_r",     "to": "harbor_g",     "kind": "transfer", "minutes": 3},
+    {"from": "museum_b",     "to": "museum_g",     "kind": "transfer", "minutes": 2},
+    {"from": "riverside_r",  "to": "park_g",       "kind": "transfer"}
+  ]
+}

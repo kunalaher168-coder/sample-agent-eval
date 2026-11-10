@@ -1,0 +1,74 @@
+name: Task and run checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install pytest
+        run: pip install pytest==8.4.1
+      - name: Run the starter repo's visible tests
+        working-directory: tasks/transit-planner-zero-transfer/environment/repo
+        run: python -m unittest discover -s tests -v
+      - name: Repository consistency checks
+        run: python scripts/check_repo.py
+      - name: Clean-copy grading matches stored grading.json
+        run: python scripts/verify.py --check
+
+  task-image:
+    runs-on: ubuntu-latest
+    env:
+      TASK: tasks/transit-planner-zero-transfer
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build the task image
+        run: docker build -t transit-task "$TASK/environment"
+      - name: Run tests/test.sh in the image and check each reward
+        run: |
+          check() {
+            label="$1"; expected="$2"; setup="$3"
+            reward=$(docker run --rm \
+              -v "$PWD/$TASK/tests:/tests:ro" \
+              -v "$PWD/$TASK/solution:/solution:ro" \
+              -v "$PWD/runs:/runs:ro" \
+              transit-task bash -c "$setup > /dev/null && bash /tests/test.sh > /dev/null 2>&1; cat /logs/verifier/reward.txt")
+            echo "$label: reward $reward (expected $expected)"
+            [ "$reward" = "$expected" ]
+          }
+          check starter 0 "true"
+          check oracle 1 "bash /solution/solve.sh"
+          check agent-a 1 "git apply /runs/agent-a/patch.diff"
+          check agent-b 0 "git apply /runs/agent-b/patch.diff"
+
+  harbor:
+    runs-on: ubuntu-latest
+    env:
+      TASK: tasks/transit-planner-zero-transfer
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install Harbor
+        run: pip install harbor==0.25.0
+      - name: Lint the task (all rules except the shared verifier, which this task type needs)
+        run: harbor lint --select ALL --ignore shared-verifier "$TASK"
+      - name: Oracle run (expected reward 1)
+        run: harbor run -p "$TASK" -a oracle -o jobs/oracle || echo "harbor run exited with $?"
+      - name: No-op run (expected reward 0)
+        run: harbor run -p "$TASK" -a nop -o jobs/nop || echo "harbor run exited with $?"
+      - name: Check rewards
+        run: python scripts/harbor_rewards.py jobs/oracle=1 jobs/nop=0
+      - name: Keep the Harbor job logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harbor-jobs
+          path: jobs/

@@ -1,0 +1,1 @@
+Got a couple of complaints that the trip planner picks weird routes. Someone going Harbor -> Museum was told to stay on the Green line, and they say that's slower. Times also look a few minutes off sometimes. Can you take a look and fix it?
