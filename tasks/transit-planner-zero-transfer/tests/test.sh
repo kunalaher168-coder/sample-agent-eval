@@ -247,7 +247,7 @@ PYTEST=(-P -m pytest -rA -p no:cacheprovider --noconftest -o addopts= --import-m
 
 # Same lists as tests/test_metadata.json. A listed test that is missing makes
 # pytest exit non-zero, so deleting a test cannot raise the reward.
-# The repo's own tests (PASS_TO_PASS), run with the repo's code as in SWE-bench.
+# The repo's own tests (PASS_TO_PASS), run with the repo's code.
 REPO_TESTS=(
   "tests/test_router.py::SampleNetworkTests::test_loads_all_stops"
   "tests/test_router.py::SampleNetworkTests::test_same_station_is_an_empty_route"

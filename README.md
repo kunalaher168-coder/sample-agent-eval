@@ -1,8 +1,8 @@
-# Coding Agent Evaluation: SWE-bench-Style Task and Trace Review
+# Coding Agent Evaluation: Debugging Task and Trace Review
 
 [![Task and run checks](https://github.com/kunalaher168-coder/sample-agent-eval/actions/workflows/tests.yml/badge.svg)](https://github.com/kunalaher168-coder/sample-agent-eval/actions/workflows/tests.yml)
 
-A SWE-bench-style debugging task packaged in the Harbor task layout (the layout Terminal-Bench 2.0 tasks use), graded with FAIL_TO_PASS and PASS_TO_PASS tests and a 0/1 reward, plus two recorded agent runs scored against a weighted rubric. Every result in this repository can be reproduced with the commands below. The task, code, tests, traces, rubric and review format were all written for this repository.
+A debugging task for coding agents, packaged in the Harbor task layout (the layout Terminal-Bench 2.0 tasks use), graded with FAIL_TO_PASS and PASS_TO_PASS tests and a 0/1 reward, plus two recorded agent runs scored against a weighted rubric. Every result in this repository can be reproduced with the commands below. The task, code, tests, traces, rubric and review format were all written for this repository.
 
 ## Task under review
 
@@ -95,7 +95,7 @@ harbor run -p tasks/transit-planner-zero-transfer -a nop -o jobs/nop
 python scripts/harbor_rewards.py jobs/oracle=1 jobs/nop=0
 ```
 
-Run on 2026-11-09 with Harbor 0.25.0 and Docker Desktop: the oracle earned reward 1.0 and the no-op agent 0.0, with no exceptions. `harbor lint` passes every rule except `shared-verifier`, which is by design: a SWE-bench-style verifier grades the agent's working tree in place, and [task-review.md](task-review.md) explains how the grader handles that. [GitHub Actions](.github/workflows/tests.yml) runs all of the above on each push: both scripts, `test.sh` inside the task image for the starter (0), the oracle (1), agent-a (1) and agent-b (0), and the Harbor lint, oracle and no-op runs.
+Run on 2026-11-09 with Harbor 0.25.0 and Docker Desktop: the oracle earned reward 1.0 and the no-op agent 0.0, with no exceptions. `harbor lint` passes every rule except `shared-verifier`, which is by design: a verifier for a repository bug fix grades the agent's working tree in place, and [task-review.md](task-review.md) explains how the grader handles that. [GitHub Actions](.github/workflows/tests.yml) runs all of the above on each push: both scripts, `test.sh` inside the task image for the starter (0), the oracle (1), agent-a (1) and agent-b (0), and the Harbor lint, oracle and no-op runs.
 
 ## Review path
 
